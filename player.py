@@ -1,6 +1,8 @@
 import math
 import random
 
+position = None
+score = 1
 class Player:
     def __init__(self,letter):
         #letter is X or O could be whatever based on the input
@@ -41,31 +43,33 @@ class ComputerSim(Player):
     def _init__(self,letter):
         super().__init__(letter)
 
+
     def get_move(self, game):
         if len(game.available_moves()) == 9:
             square = random.choice(game.available_moves())
         else:
             #  using the minimax algorithm get the square
-            square = self.minimax(game, self.letter)['Position']
+            square = self.minimax(game, self.letter)[position]
         return square
 
     def minimax(self, game, player):
         max_player = self.letter  # set the player as the maximum
         min_payer = 'O' if player == 'X' else 'X'  # set the PC to be the min
 
+
         # check if the previous move was a winning move to begin with
         if game.current_winner == min_payer:
             # return the score and position to keep track of
-            return {'Position': None,
-                    'Score': 1 * (game.num_empty_squares() + 1) if min_payer == max_player
+            return {position: None,
+                    score: 1 * (game.num_empty_squares() + 1) if min_payer == max_player
                     else -1 * (game.num_empty_squares() + 1)}
         elif not game.empty_squares():  # if there are no empty sqaures its a tie
-            return {'Position': None, 'Score': 0}
+            return {position: None, score: 0}
 
         if player == max_player:
-            best_result = {'Position': None, 'Score': -math.inf}
+            best_result = {position: None, score: -math.inf}
         else:
-            best_result = {'Position': None, 'Score': math.inf}
+            best_result = {position: None, score: math.inf}
         for possible_moves in game.available_moves():
             # make a move , try a spot
             game.make_move(possible_moves, player)
@@ -76,13 +80,13 @@ class ComputerSim(Player):
             #  undo the previous move so we can try again in the next iteration
             game.board[possible_moves] = ' '
             game.current_winner = None
-            simulated_score['Position'] = possible_moves  # prevents recursion from errors
+            simulated_score[position] = possible_moves  # prevents recursion from errors
 
             #  update the dictionaries if the move beats the current best score
             if player == max_player:
-                if simulated_score['Score'] > best_result['Score']:
+                if simulated_score[score] > best_result[score]:
                     best_result = simulated_score  # this becomes the new best move
             else:
-                if simulated_score['Score'] < best_result['Score']:
+                if simulated_score[score] < best_result[score]:
                     best_result = simulated_score  # this becomes the new best move
         return best_result  # return a dic of best possible move and score
